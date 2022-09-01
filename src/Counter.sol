@@ -2,13 +2,25 @@
 pragma solidity ^0.8.13;
 
 contract Counter {
-    uint256 public number;
+    int private count;
 
-    function setNumber(uint256 newNumber) public {
-        number = newNumber;
+    constructor (int _count) {
+        count = _count;
+    }
+
+    function setCount(int newNumber) public {
+        count = newNumber;
     }
 
     function increment() public {
-        number++;
+        count += 1;
+    }
+
+    function decrement() public {
+        count -= 1;
+    }
+
+    function getCount() public view returns (int) {
+        return count;
     }
 }

@@ -2,25 +2,53 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../src/Counter.sol";
+import "../src/ERC721.sol";
 
 contract CounterTest is Test {
-    Counter counter;
+    MyNFT erc721;
+    address bob = address(0x1);
+    address mary = address(0x2);
 
-    function setUp() public {
-        counter = new Counter(10);
+    function testMintToken() public {
+        erc721 = new MyNFT();
+        erc721.mint(bob, 0);
+        address owner_of = erc721.ownerOf(0);
+        assertEq(bob, owner_of);
+
     }
 
-    function testGetCount() public {
-        int value = counter.getCount();
-        assertEq(value, 10);
-        emit log_named_int("the value is", value);
+    function testTransferToken() public {
+        erc721 = new MyNFT();
+        erc721.mint(bob, 0);
+
+        vm.startPrank(bob);
+        erc721.safeTransferFrom(bob, mary, 0);
+
+        address owner_of = erc721.ownerOf(0);
+        assertEq(mary, owner_of);
     }
 
-    function testIncrementCounter() public {
-        counter.increment();
-        int value = counter.getCount();
-        assertEq(value, 11);
-        emit log_named_int("The value is", 11);
+    function testGetBalance() public {
+        erc721 = new MyNFT();
+        erc721.mint(bob, 0);
+        erc721.mint(bob, 1);
+        erc721.mint(bob, 2);
+        erc721.mint(bob, 3);
+        erc721.mint(bob, 4);
+
+        uint balance = erc721.balanceOf(bob);
+        assertEq(balance, 5);
+    }
+
+    function testOnlyOwnerBurn() public {
+        erc721 = new MyNFT();
+        erc721.mint(bob, 0);
+
+        vm.startPrank(mary);
+        vm.expectRevert("not owner");
+        
+        erc721.burn(0);
+
+        emit log_address(mary);
     }
 }
